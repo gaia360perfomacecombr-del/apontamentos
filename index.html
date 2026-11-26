@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f6b45">
+<title>Apontamento de serviço</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icone.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icone-192.png">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<main>
+  <header class="topo">
+    <span class="marca" id="marca">Golden Incorporadora</span>
+    <span class="sinal" id="sinal">Com sinal</span>
+  </header>
+
+  <div id="semTarefa" class="aviso erro oculto">
+    Este link está incompleto. Peça ao escritório para reenviar o link da tarefa.
+  </div>
+
+  <div id="tela" class="oculto">
+    <h1 id="titulo">Tarefa</h1>
+    <p class="sub" id="subtitulo"></p>
+
+    <div class="etapas">
+      <span class="etapa" id="etapa1">1 · Início</span>
+      <span class="etapa" id="etapa2">2 · Conclusão</span>
+    </div>
+
+    <div id="avisoOffline" class="aviso atencao oculto">
+      Sem sinal agora. Pode preencher normalmente: tudo fica guardado no celular e sobe sozinho quando o sinal voltar.
+    </div>
+
+    <!-- ETAPA 1: início do serviço -->
+    <form id="formInicio" class="oculto" novalidate>
+      <section class="cartao">
+        <h2>Começando o serviço</h2>
+        <div class="campo">
+          <label for="entrada">Hora de entrada <span class="dica">(já vem com a hora de agora)</span></label>
+          <input type="time" id="entrada" required>
+        </div>
+        <div class="campo oculto" id="campoHorIni">
+          <label for="horIni" id="rotHorIni">Horímetro inicial</label>
+          <input type="number" inputmode="decimal" step="0.1" id="horIni">
+        </div>
+        <div class="campo oculto" id="campoKmIni">
+          <label for="kmIni" id="rotKmIni">KM inicial</label>
+          <input type="number" inputmode="decimal" step="0.1" id="kmIni">
+        </div>
+      </section>
+      <p class="dica" style="text-align:center">Depois de salvar, pode fechar. Ao terminar o serviço, abra este mesmo link para concluir.</p>
+    </form>
+
+    <!-- resumo do início já salvo -->
+    <section class="cartao oculto" id="resumoInicio">
+      <h2>✔ Início salvo</h2>
+      <div id="resumoLinhas"></div>
+      <button type="button" class="link-botao" id="corrigirInicio">Corrigir o início</button>
+    </section>
+
+    <!-- ETAPA 2: conclusão -->
+    <form id="formFim" class="oculto" novalidate>
+      <section class="cartao">
+        <h2>Terminando o serviço</h2>
+        <div class="campo">
+          <label for="saida">Hora de saída <span class="dica">(já vem com a hora de agora)</span></label>
+          <input type="time" id="saida" required>
+        </div>
+        <div class="campo oculto" id="campoHorFim">
+          <label for="horFim">Horímetro final</label>
+          <input type="number" inputmode="decimal" step="0.1" id="horFim">
+        </div>
+        <div class="campo oculto" id="campoKmFim">
+          <label for="kmFim">KM final</label>
+          <input type="number" inputmode="decimal" step="0.1" id="kmFim">
+        </div>
+      </section>
+
+      <section class="cartao oculto" id="blocoServico">
+        <h2>Produção</h2>
+        <div class="campo">
+          <label for="qtd">Quantidade feita <span class="dica" id="unidadeTxt"></span></label>
+          <input type="number" inputmode="decimal" step="0.01" id="qtd">
+        </div>
+        <div id="materiais"></div>
+      </section>
+
+      <section class="cartao">
+        <h2>Foto do serviço pronto</h2>
+        <div class="foto-area">
+          <img id="previa" class="oculto" alt="Prévia da foto">
+          <label for="foto" class="botao sec" id="botaoFoto">📷 Tirar foto</label>
+          <input type="file" id="foto" accept="image/*" capture="environment">
+          <p class="dica" style="margin:10px 0 0">Tire a foto na hora, mostrando o serviço terminado.</p>
+        </div>
+      </section>
+
+      <section class="cartao oculto" id="blocoVideo">
+        <h2>Vídeo do serviço <span class="dica">(obrigatório nesta tarefa)</span></h2>
+        <div class="foto-area">
+          <video id="videoPrevia" class="oculto" playsinline controls></video>
+          <video id="videoAoVivo" class="oculto" playsinline muted autoplay></video>
+          <div id="gravandoTxt" class="aviso erro oculto">● Gravando… <span id="contador">0</span>s de <span id="maxSeg">20</span>s</div>
+          <button type="button" class="botao sec" id="botaoVideo">🎥 Gravar vídeo</button>
+          <button type="button" class="botao perigo oculto" id="pararVideo">■ Parar</button>
+          <label for="videoArquivo" class="link-botao oculto" id="usarCamera">Usar a câmera do celular</label>
+          <input type="file" id="videoArquivo" accept="video/*" capture="environment" style="display:none">
+          <p class="dica" style="margin:10px 0 0">Mostre o serviço andando ao redor. Até <span id="maxSeg2">20</span> segundos.</p>
+        </div>
+      </section>
+
+      <section class="cartao">
+        <h2>Observações <span class="dica">(opcional)</span></h2>
+        <textarea id="obs" placeholder="Algum problema, falta de material, chuva…"></textarea>
+      </section>
+    </form>
+
+    <div id="erro" class="aviso erro oculto"></div>
+  </div>
+
+  <section id="pronto" class="oculto">
+    <h1 id="prontoTitulo">Pronto! ✅</h1>
+    <div id="msgPronto" class="aviso ok"></div>
+    <p class="sub" id="prontoSub"></p>
+    <button class="botao sec" id="novo" type="button">Voltar</button>
+  </section>
+
+  <p class="fila" id="filaTxt"></p>
+</main>
+
+<div class="rodape oculto" id="rodape">
+  <button class="botao" id="principal" type="button">Salvar início</button>
+</div>
+
+<script src="config.js"></script>
+<script src="fila.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
