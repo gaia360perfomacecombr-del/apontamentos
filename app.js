@@ -23,8 +23,8 @@
     nomes.slice(0, 3).forEach((n, i) => materiais.push({ nome: n, id: ids[i] || "" }));
   }
 
-  $("marca").textContent = C.SISTEMA;
-  $("empresa").textContent = C.EMPRESA;
+  $("marca").textContent = C.EMPRESA;
+  $("empresa").textContent = C.SISTEMA;
   if (!tarefa) { $("semTarefa").classList.remove("oculto"); return; }
 
   // ---------- utilidades ----------
@@ -61,7 +61,7 @@
     (tipo === "maquina" ? (maquina ? "Máquina: " + maquina : "Apontamento de máquina") :
      tipo === "veiculo" ? (veiculo ? "Veículo: " + veiculo : "Apontamento de veículo") : "Serviço e materiais") +
     (dataTarefa ? " · " + dataTarefa.split("-").reverse().join("/") : "");
-  document.title = (nomeTarefa || "Apontamento") + " – " + C.SISTEMA;
+  document.title = (nomeTarefa || "Apontamento") + " – " + C.ASSISTENTE;
 
   // campos conforme o tipo
   if (tipo === "maquina") {
@@ -452,7 +452,7 @@
     $("principal").textContent = temInicio ? "Concluir e enviar" : "Salvar início";
     $("ninaFala").textContent = temInicio
       ? "Início salvo! Quando terminar o serviço, preencha a saída, tire a foto e toque em Concluir e enviar."
-      : "Oi! Sou a " + C.ASSISTENTE + ", assistente do " + C.SISTEMA + ". Ao começar o serviço, confira a hora de entrada e toque em Salvar início.";
+      : "Oi! Sou a " + C.ASSISTENTE + ", assistente das suas tarefas. Ao começar o serviço, confira a hora de entrada e toque em Salvar início.";
     mostrarErro("");
     if (temInicio) {
       preencherResumo();

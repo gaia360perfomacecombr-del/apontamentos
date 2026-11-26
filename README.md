@@ -1,6 +1,6 @@
 # Supervisor 2.0 – apontamentos offline (Golden Incorporadora)
 
-Metodologia **Supervisor 2.0**. A **Nina** é a assistente que envia as tarefas e guia o funcionário no formulário.
+**Supervisor 2.0** é o nome da metodologia, usado só no material institucional e de venda. Para o funcionário, quem aparece é a **Nina**, assistente das suas tarefas: ela envia as tarefas e guia o preenchimento do formulário.
 
 Formulário que o funcionário abre pelo link do WhatsApp, preenche **mesmo sem sinal** e que sobe sozinho para o Make → Notion quando o celular reconectar. Depois, o supervisor dá o **de acordo** num painel próprio; só então a tarefa fica **Concluída**.
 
