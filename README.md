@@ -1,4 +1,6 @@
-# Apontamentos offline – Golden Incorporadora
+# Supervisor 2.0 – apontamentos offline (Golden Incorporadora)
+
+Metodologia **Supervisor 2.0**. A **Nina** é a assistente que envia as tarefas e guia o funcionário no formulário.
 
 Formulário que o funcionário abre pelo link do WhatsApp, preenche **mesmo sem sinal** e que sobe sozinho para o Make → Notion quando o celular reconectar. Depois, o supervisor dá o **de acordo** num painel próprio; só então a tarefa fica **Concluída**.
 

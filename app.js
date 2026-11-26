@@ -23,7 +23,8 @@
     nomes.slice(0, 3).forEach((n, i) => materiais.push({ nome: n, id: ids[i] || "" }));
   }
 
-  $("marca").textContent = C.EMPRESA;
+  $("marca").textContent = C.SISTEMA;
+  $("empresa").textContent = C.EMPRESA;
   if (!tarefa) { $("semTarefa").classList.remove("oculto"); return; }
 
   // ---------- utilidades ----------
@@ -60,7 +61,7 @@
     (tipo === "maquina" ? (maquina ? "Máquina: " + maquina : "Apontamento de máquina") :
      tipo === "veiculo" ? (veiculo ? "Veículo: " + veiculo : "Apontamento de veículo") : "Serviço e materiais") +
     (dataTarefa ? " · " + dataTarefa.split("-").reverse().join("/") : "");
-  document.title = (nomeTarefa || "Apontamento") + " – " + nomesTipo[tipo];
+  document.title = (nomeTarefa || "Apontamento") + " – " + C.SISTEMA;
 
   // campos conforme o tipo
   if (tipo === "maquina") {
@@ -430,10 +431,10 @@
     $("tela").classList.add("oculto");
     $("rodape").classList.add("oculto");
     $("pronto").classList.remove("oculto");
-    $("prontoTitulo").textContent = "Serviço concluído! ✅";
+    $("prontoTitulo").textContent = "Obrigada! Serviço concluído ✅";
     $("msgPronto").textContent = subiu && !restantes
-      ? "Apontamento enviado."
-      : "Apontamento guardado no celular. Ele sobe sozinho quando tiver sinal — se demorar, abra este link de novo com sinal.";
+      ? "A " + C.ASSISTENTE + " já enviou seu apontamento."
+      : "A " + C.ASSISTENTE + " guardou seu apontamento no celular. Ele sobe sozinho quando tiver sinal — se demorar, abra este link de novo com sinal.";
     $("prontoSub").textContent = "O supervisor vai conferir e dar o \"de acordo\". Só depois disso a tarefa fica como concluída.";
     window.scrollTo(0, 0);
   }
@@ -449,6 +450,9 @@
     $("etapa1").className = "etapa " + (temInicio ? "feita" : "ativa");
     $("etapa2").className = "etapa " + (temInicio ? "ativa" : "");
     $("principal").textContent = temInicio ? "Concluir e enviar" : "Salvar início";
+    $("ninaFala").textContent = temInicio
+      ? "Início salvo! Quando terminar o serviço, preencha a saída, tire a foto e toque em Concluir e enviar."
+      : "Oi! Sou a " + C.ASSISTENTE + ", assistente do " + C.SISTEMA + ". Ao começar o serviço, confira a hora de entrada e toque em Salvar início.";
     mostrarErro("");
     if (temInicio) {
       preencherResumo();

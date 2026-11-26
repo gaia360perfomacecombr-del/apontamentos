@@ -2,7 +2,8 @@
   const $ = (id) => document.getElementById(id);
   const C = window.CONFIG;
   const chave = new URLSearchParams(location.search).get("k") || "";
-  $("marca").textContent = C.EMPRESA;
+  $("marca").textContent = C.SISTEMA;
+  $("empresa").textContent = C.EMPRESA;
 
   function aviso(msg, tipo) {
     $("aviso").textContent = msg || "";

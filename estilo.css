@@ -46,3 +46,7 @@ input:focus,textarea:focus{outline:3px solid #9cc9ae;border-color:var(--verde)}
 .foto-area video{width:100%;max-height:320px;border-radius:8px;background:#000;display:block;margin:0 auto 10px}
 .rodape{position:fixed;left:0;right:0;bottom:0;background:var(--fundo);border-top:1px solid var(--borda);padding:10px 14px}
 .rodape .botao{max-width:532px;margin:0 auto}
+header.topo .marca{display:flex;flex-direction:column;line-height:1.2}
+header.topo .empresa{font-weight:400;font-size:12px;color:var(--suave)}
+.nina{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--borda);border-radius:var(--raio);padding:12px 14px;margin:0 0 14px;font-size:15px}
+.nina-avatar{flex:none;width:34px;height:34px;border-radius:50%;background:var(--verde);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}

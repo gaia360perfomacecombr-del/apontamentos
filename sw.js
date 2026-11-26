@@ -1,5 +1,5 @@
 // Guarda o formulário no celular para abrir sem sinal.
-const VERSAO = "apontamentos-v3";
+const VERSAO = "apontamentos-v4";
 const ARQUIVOS = ["./", "index.html", "aprovar.html", "estilo.css", "config.js", "fila.js", "app.js", "aprovar.js", "manifest.json", "icone.svg", "icone-192.png", "icone-512.png"];
 
 self.addEventListener("install", (e) => {
