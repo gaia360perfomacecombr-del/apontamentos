@@ -13,6 +13,7 @@
   const unidade = P.get("unidade") || "";
   const dataTarefa = (P.get("data") || "").slice(0, 10);          // AAAA-MM-DD
   const exigeVideo = P.get("video") === "1";
+  const demo = /^demo/i.test((P.get("tarefa") || "").trim());   // modelo: nada é enviado
 
   const materiais = [];
   for (let i = 1; i <= 3; i++) {
@@ -88,6 +89,12 @@
   if (exigeVideo) $("blocoVideo").classList.remove("oculto");
   $("maxSeg").textContent = $("maxSeg2").textContent = C.VIDEO_MAX_SEG;
   $("tela").classList.remove("oculto");
+  if (demo) {
+    const av = document.createElement("div");
+    av.className = "aviso atencao";
+    av.textContent = "Modelo de demonstração: pode preencher à vontade, nada será enviado.";
+    $("tela").insertBefore(av, $("tela").firstChild);
+  }
   $("rodape").classList.remove("oculto");
 
   // ---------- sinal e fila ----------
@@ -138,6 +145,7 @@
       entrada_editada: $("entrada").value !== $("entrada").dataset.sugerida
     };
     guardarLocal(chaveInicio, inicio);
+    if (demo) { mostrarEtapa(); window.scrollTo(0, 0); return; }
     // avisa o escritório (sobe quando houver sinal): tarefa fica "Em andamento"
     Fila.guardar({
       id: novoId(),
@@ -379,6 +387,18 @@
     if (msg) return;
     $("principal").disabled = true;
     $("principal").textContent = "Guardando…";
+    if (demo) {
+      guardarLocal(chaveInicio, null);
+      guardarLocal(chaveRascunho, null);
+      $("tela").classList.add("oculto");
+      $("rodape").classList.add("oculto");
+      $("pronto").classList.remove("oculto");
+      $("prontoTitulo").textContent = "Obrigada! Serviço concluído ✅";
+      $("msgPronto").textContent = "Este é um modelo de demonstração: nada foi enviado. Numa tarefa real, a Nina envia o apontamento para o supervisor conferir.";
+      $("prontoSub").textContent = "";
+      window.scrollTo(0, 0);
+      return;
+    }
     const agora = new Date();
     const envio = {
       id: novoId(),

@@ -16,7 +16,30 @@
   window.addEventListener("offline", sinal);
   sinal();
 
+  const DEMO = chave === "demo";
+  const agoraISO = (h) => { const d = new Date(); d.setHours(h, 0, 0, 0); return d.toISOString(); };
+  const rt = (t) => [{ plain_text: t }];
+  const exemplo = (id, titulo, ent, sai, horas, vh, vf, ia, obs, extra) => ({ id, properties: Object.assign({
+    "Registro": { title: rt(titulo) },
+    "Entrada": { date: { start: ent } }, "Saída": { date: { start: sai } },
+    "Horas": { type: "formula", formula: { number: horas } },
+    "Verificação de horário": { select: { name: vh } }, "Verificação da foto": { select: { name: vf } },
+    "Análise da foto (IA)": { rich_text: rt(ia) }, "Observações": { rich_text: rt(obs) },
+    "Hora no celular": { date: { start: sai } }, "Enviado em": { date: { start: sai } },
+    "Foto": { files: [] }, "Link da foto": { url: "icone-512.png" }
+  }, extra || {}) });
+  const ITENS_DEMO = [
+    exemplo("d1", "Abertura da Rua 4 – Máquina – Marcos", "2026-11-26T07:00:00-04:00", "2026-11-26T11:30:00-04:00", 4.5, "OK", "OK",
+      "COMPATIVEL\nMotoniveladora nivelando o leito da rua, solo exposto.", "", { "Horímetro inicial": { number: 1200 }, "Horímetro final": { number: 1204.5 } }),
+    exemplo("d2", "Meio-fio Rua 1 – Serviço – Antônio", "2026-11-26T13:00:00-04:00", "2026-11-26T17:00:00-04:00", 4, "OK", "Foto repetida",
+      "INCONCLUSIVO\nFoto igual a um envio anterior.", "[saída digitada à mão] Faltou cimento às 15h", { "Quantidade realizada": { number: 38 }, "Unidade": { rich_text: rt("metros lineares") } })
+  ];
+
   async function chamar(dados) {
+    if (DEMO) {
+      if (dados.acao === "listar") return { ok: true, supervisor: "Modelo de demonstração", itens: ITENS_DEMO };
+      return { ok: true };
+    }
     const r = await fetch(C.PAINEL_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
