@@ -14,6 +14,14 @@
   const dataTarefa = (P.get("data") || "").slice(0, 10);          // AAAA-MM-DD
   const exigeVideo = P.get("video") === "1";
   const dataFim = (P.get("fim") || "").slice(0, 10);              // data prevista de término (tarefa de vários dias)
+  // nome do funcionário para a Nina cumprimentar: "Seu Zé", "Dona Maria" ou só o primeiro nome
+  const nomeFunc = (function () {
+    const bruto = (P.get("func") || "").replace(/\([^)]*\)/g, "").replace(/,.*$/, "").trim();
+    if (!bruto) return "";
+    const partes = bruto.split(/\s+/);
+    return /^(seu|dona|sr\.?|sra\.?)$/i.test(partes[0]) && partes[1] ? partes[0] + " " + partes[1] : partes[0];
+  })();
+  const ola = "Olá" + (nomeFunc ? ", " + nomeFunc : "") + "!";
   const prevista = P.get("prevista") ? Number(String(P.get("prevista")).replace(",", ".")) : null;
   const demo = /^demo/i.test((P.get("tarefa") || "").trim());   // modelo: nada é enviado
 
@@ -534,13 +542,15 @@
     $("principal").textContent = "Salvar início";
     const n = diaNumero();
     const esqueceu = temInicio && inicio.dia && inicio.dia < hojeISO();
+    const variosDias = !!(dataFim && dataTarefa && dataFim !== dataTarefa);
     $("ninaFala").textContent = esqueceu
-      ? "O dia " + dataBR(inicio.dia) + " ficou aberto. Preencha a hora de saída daquele dia e envie. Depois, salve o início de hoje."
+      ? ola + " O dia " + dataBR(inicio.dia) + " ficou aberto. Preencha a hora de saída daquele dia e envie. Depois, salve o início de hoje. Estou aqui para ajudar."
       : temInicio
-      ? "Início salvo! No fim do expediente, preencha a saída, tire a foto e escolha: encerrar o dia ou tarefa concluída."
+      ? "Início salvo" + (nomeFunc ? ", " + nomeFunc : "") + "! Trabalhe com segurança. No fim do expediente, preencha a saída, tire a foto e " +
+        (variosDias ? "escolha: encerrar o dia ou tarefa concluída." : "toque em Concluir tarefa e enviar.")
       : n > 1
-      ? "Olá de novo! Hoje é o dia " + n + " desta tarefa. Ao começar, confira a hora de entrada e toque em Salvar início."
-      : "Oi! Sou a " + C.ASSISTENTE + ", assistente das suas tarefas. Ao começar o serviço, confira a hora de entrada e toque em Salvar início.";
+      ? ola + " Hoje é o dia " + n + " desta tarefa. 🦺 Confira o equipamento de segurança, verifique a hora de entrada e toque em Salvar início. Conte comigo!"
+      : ola + " Aqui é a " + C.ASSISTENTE + ", sua parceira nesta tarefa. 🦺 Antes de começar, confira o equipamento de segurança. Em seguida, verifique a hora de entrada e toque em Salvar início. Mesmo sem sinal, eu guardo tudo para você. Bom trabalho!";
     mostrarProgresso();
     mostrarErro("");
     if (temInicio) {
