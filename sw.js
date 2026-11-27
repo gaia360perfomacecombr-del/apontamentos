@@ -1,5 +1,5 @@
 // Guarda o formulário no celular para abrir sem sinal.
-const VERSAO = "apontamentos-v13";
+const VERSAO = "apontamentos-v14";
 const ARQUIVOS = ["./", "index.html", "aprovar.html", "estilo.css", "config.js", "fila.js", "app.js", "aprovar.js", "manifest.json", "icone.svg", "icone-192.png", "icone-512.png", "nina.webp"];
 
 self.addEventListener("install", (e) => {
@@ -22,7 +22,7 @@ self.addEventListener("fetch", (e) => {
   // ignoreSearch: qualquer link de tarefa (?tarefa=...) abre a mesma página guardada.
   // Sinal fraco: se a rede demorar mais de 4 s, abre a cópia guardada.
   const comLimite = Promise.race([
-    fetch(req),
+    fetch(req.url, { cache: "no-cache", credentials: "same-origin" }), // confere se há versão nova (rápido quando não mudou)
     new Promise((_, falha) => setTimeout(() => falha(new Error("lento")), 4000))
   ]);
   e.respondWith(
