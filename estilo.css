@@ -67,3 +67,10 @@ header.topo .empresa{font-weight:400;font-size:12px;color:var(--suave)}
 
 .empresa-rodape{font-size:12px;line-height:1.5;color:var(--suave);text-align:center;margin:24px 0 8px;padding-top:12px;border-top:1px solid var(--borda)}
 .empresa-rodape a{color:var(--verde)}
+
+/* instruções de preenchimento */
+.instrucoes{background:#f7f9f6;border:1px solid var(--verde2);border-left:4px solid var(--verde);border-radius:var(--raio);padding:10px 14px;margin:0 0 14px}
+.instrucoes summary{font-weight:700;color:var(--verde);cursor:pointer;font-size:15px;list-style-position:outside}
+.instrucoes ol{margin:10px 0 2px;padding-left:22px}
+.instrucoes li{margin:0 0 7px;font-size:14px;line-height:1.45}
+.instrucoes li:last-child{margin-bottom:0}

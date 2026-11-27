@@ -12,7 +12,15 @@
   const veiculo = P.get("veiculo") || "", veiculoId = P.get("veiculo_id") || "";
   const unidade = P.get("unidade") || "";
   const dataTarefa = (P.get("data") || "").slice(0, 10);          // AAAA-MM-DD
-  const exigeVideo = P.get("video") === "1";
+  // evidência pedida pela tarefa: "foto", "video" ou "ambos" (foto todo dia + vídeo na conclusão)
+  const evid = (function () {
+    const e = (P.get("evid") || "").toLowerCase();
+    if (e === "foto" || e === "video" || e === "ambos") return e;
+    return P.get("video") === "1" ? "ambos" : "foto";   // links antigos
+  })();
+  const pedeFoto = evid !== "video";
+  const exigeVideo = evid !== "foto";                     // a tarefa usa vídeo em algum momento
+  const videoAgora = (final) => evid === "video" || (evid === "ambos" && final);
   const dataFim = (P.get("fim") || "").slice(0, 10);              // data prevista de término (tarefa de vários dias)
   // nome do funcionário para a Nina cumprimentar: "Seu Zé", "Dona Maria" ou só o primeiro nome
   const nomeFunc = (function () {
@@ -21,6 +29,10 @@
     const partes = bruto.split(/\s+/);
     return /^(seu|dona|sr\.?|sra\.?)$/i.test(partes[0]) && partes[1] ? partes[0] + " " + partes[1] : partes[0];
   })();
+  // EPIs conforme o tipo de tarefa
+  const epis = tipo === "maquina" ? "capacete, colete, botina, luvas, óculos de proteção e protetor auricular"
+    : tipo === "veiculo" ? "colete, botina e cinto de segurança"
+    : "capacete, colete, botina e luvas";
   const ola = "Olá" + (nomeFunc ? ", " + nomeFunc : "") + "!";
   const prevista = P.get("prevista") ? Number(String(P.get("prevista")).replace(",", ".")) : null;
   const demo = /^demo/i.test((P.get("tarefa") || "").trim());   // modelo: nada é enviado
@@ -96,6 +108,12 @@
       $("materiais").appendChild(d);
     });
   }
+  // instruções: mostra só os passos que valem para esta tarefa
+  document.querySelectorAll(".epis").forEach((e) => (e.textContent = epis));
+  document.querySelectorAll(".instrucoes li").forEach((li) => {
+    const t = li.dataset.tipo, ev = li.dataset.evid, m = li.dataset.materiais;
+    if ((t && t !== tipo) || (ev && ev.split(" ").indexOf(evid) < 0) || (m && !materiais.length)) li.remove();
+  });
   $("maxSeg").textContent = $("maxSeg2").textContent = C.VIDEO_MAX_SEG;
   $("tela").classList.remove("oculto");
   if (demo) {
@@ -395,7 +413,9 @@
   function ehFinal() { return $("comoFinal").checked; }
   function aplicarEscolha() {
     const final = ehFinal();
-    $("blocoVideo").classList.toggle("oculto", !(exigeVideo && final));
+    $("blocoVideo").classList.toggle("oculto", !videoAgora(final));
+    $("blocoFoto").classList.toggle("oculto", !pedeFoto);
+    $("videoTitulo").textContent = final ? "Vídeo do serviço pronto" : "Vídeo do avanço de hoje";
     $("fotoTitulo").textContent = final ? "Foto do serviço pronto" : "Foto do avanço de hoje";
     $("fotoDica").textContent = final ? "Tire a foto na hora, mostrando o serviço terminado." : "Tire a foto na hora, mostrando o que foi feito hoje.";
     if (inicio) $("principal").textContent = final ? "Concluir tarefa e enviar" : "Encerrar o dia e enviar";
@@ -422,8 +442,8 @@
       if (num("kmFim") === null) return "Preencha o KM final.";
       if (num("kmFim") <= inicio.km_inicial) return "O KM final precisa ser maior que o inicial (" + fmt(inicio.km_inicial) + ").";
     }
-    if (!foto) return "Tire a foto do serviço pronto.";
-    if (exigeVideo && ehFinal() && !video) return "Esta tarefa precisa de vídeo. Grave o vídeo do serviço.";
+    if (pedeFoto && !foto) return "Tire a foto do serviço.";
+    if (videoAgora(ehFinal()) && !video) return "Esta tarefa precisa de vídeo. Grave o vídeo do serviço.";
     return "";
   }
 
@@ -500,15 +520,16 @@
       observacoes: $("obs").value.trim(),
       hora_celular: agora.toISOString(),
       fuso_minutos: -agora.getTimezoneOffset(),
-      foto_base64: foto.base64,
-      foto_hash: foto.hash,
-      foto_tirada_em: foto.tiradaEm,
-      foto_tamanho_original: foto.tamanhoOriginal,
-      exige_video: exigeVideo,
-      video_base64: video && final ? video.base64 : "",
-      video_hash: video ? video.hash : "",
-      video_tipo: video ? video.mime : "",
-      video_segundos: video ? video.segundos : 0,
+      evidencia: evid,
+      foto_base64: foto && pedeFoto ? foto.base64 : "",
+      foto_hash: foto && pedeFoto ? foto.hash : "",
+      foto_tirada_em: foto && pedeFoto ? foto.tiradaEm : "",
+      foto_tamanho_original: foto && pedeFoto ? foto.tamanhoOriginal : 0,
+      exige_video: videoAgora(final),
+      video_base64: video && videoAgora(final) ? video.base64 : "",
+      video_hash: video && videoAgora(final) ? video.hash : "",
+      video_tipo: video && videoAgora(final) ? video.mime : "",
+      video_segundos: video && videoAgora(final) ? video.segundos : 0,
       video_gravado_no_formulario: video ? video.gravadoNoFormulario : false,
       offline_no_envio: !navigator.onLine
     };
@@ -546,11 +567,11 @@
     $("ninaFala").textContent = esqueceu
       ? ola + " O dia " + dataBR(inicio.dia) + " ficou aberto. Preencha a hora de saída daquele dia e envie. Depois, salve o início de hoje. Estou aqui para ajudar."
       : temInicio
-      ? "Início salvo" + (nomeFunc ? ", " + nomeFunc : "") + "! Trabalhe com segurança. No fim do expediente, preencha a saída, tire a foto e " +
+      ? "Início salvo" + (nomeFunc ? ", " + nomeFunc : "") + "! Trabalhe com segurança. No fim do expediente, preencha a saída, " + (evid === "video" ? "grave o vídeo" : "tire a foto") + " e " +
         (variosDias ? "escolha: encerrar o dia ou tarefa concluída." : "toque em Concluir tarefa e enviar.")
       : n > 1
-      ? ola + " Hoje é o dia " + n + " desta tarefa. 🦺 Confira o equipamento de segurança, verifique a hora de entrada e toque em Salvar início. Conte comigo!"
-      : ola + " Aqui é a " + C.ASSISTENTE + ", sua parceira nesta tarefa. 🦺 Antes de começar, confira o equipamento de segurança. Em seguida, verifique a hora de entrada e toque em Salvar início. Mesmo sem sinal, eu guardo tudo para você. Bom trabalho!";
+      ? ola + " Hoje é o dia " + n + " desta tarefa. 🦺 Não esqueça dos EPIs: sua vida em primeiro lugar! Depois, verifique a hora de entrada e toque em Salvar início. Conte comigo!"
+      : ola + " Aqui é a " + C.ASSISTENTE + ", sua parceira nesta tarefa. 🦺 Não esqueça dos EPIs: " + epis + ". Sua vida em primeiro lugar! Em seguida, verifique a hora de entrada e toque em Salvar início. Mesmo sem sinal, eu guardo tudo para você. Bom trabalho!";
     mostrarProgresso();
     mostrarErro("");
     if (temInicio) {

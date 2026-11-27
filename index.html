@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icone.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icone-192.png">
-<link rel="stylesheet" href="estilo.css?v=14">
+<link rel="stylesheet" href="estilo.css?v=15">
 </head>
 <body>
 <main>
@@ -42,6 +42,15 @@
 
     <!-- ETAPA 1: início do serviço -->
     <form id="formInicio" class="oculto" novalidate>
+      <details class="instrucoes" open>
+        <summary>📋 Como preencher o início</summary>
+        <ol>
+          <li><b>Hora de entrada:</b> já vem com a hora de agora. Só mude se você começou antes de abrir o link.</li>
+          <li data-tipo="maquina"><b>Horímetro inicial:</b> anote o número que aparece no painel da máquina, antes de começar o serviço.</li>
+          <li data-tipo="veiculo"><b>KM inicial:</b> anote a quilometragem do painel do veículo, antes de sair.</li>
+          <li>Toque no botão verde <b>Salvar início</b>. Depois pode fechar: funciona mesmo sem sinal.</li>
+        </ol>
+      </details>
       <section class="cartao">
         <h2>Começando o serviço</h2>
         <div class="campo">
@@ -70,6 +79,22 @@
 
     <!-- ETAPA 2: conclusão -->
     <form id="formFim" class="oculto" novalidate>
+      <details class="instrucoes" open>
+        <summary>📋 Como preencher o fim do dia</summary>
+        <ol>
+          <li><b>Como terminou hoje?</b> Escolha <b>Encerrar o dia</b> se o serviço continua amanhã, ou <b>Tarefa concluída</b> se terminou.</li>
+          <li><b>Hora de saída:</b> já vem com a hora de agora. Só mude se você parou antes.</li>
+          <li data-tipo="maquina"><b>Horímetro final:</b> anote o número do painel ao desligar a máquina. Precisa ser maior que o inicial.</li>
+          <li data-tipo="veiculo"><b>KM final:</b> anote a quilometragem do painel ao chegar. Precisa ser maior que a inicial.</li>
+          <li data-tipo="servico"><b>Quantidade feita hoje:</b> só o que foi feito hoje, não o total da tarefa.</li>
+          <li data-tipo="servico" data-materiais="1"><b>Materiais:</b> informe quanto usou de cada material.</li>
+          <li data-evid="foto ambos">📷 <b>Foto:</b> tire na hora, de um ponto que mostre o serviço inteiro. Não use foto da galeria.</li>
+          <li data-evid="video">🎥 <b>Vídeo:</b> grave na hora, até 20 segundos, andando ao redor do serviço para mostrar o que foi feito.</li>
+          <li data-evid="ambos">🎥 <b>Vídeo:</b> no dia em que concluir a tarefa, grave também um vídeo de até 20 segundos andando ao redor do serviço.</li>
+          <li><b>Observações:</b> conte se houve chuva, falta de material, máquina parada ou outro problema.</li>
+          <li>Toque no botão verde para <b>enviar</b>. Sem sinal, a Nina guarda e envia sozinha depois.</li>
+        </ol>
+      </details>
       <section class="cartao" id="blocoComo">
         <h2>Como terminou hoje?</h2>
         <label class="opcao"><input type="radio" name="como" value="dia" id="comoDia"><span><b>Encerrar o dia</b><span class="dica">O serviço continua amanhã. Use o mesmo link.</span></span></label>
@@ -101,7 +126,7 @@
         <div id="materiais"></div>
       </section>
 
-      <section class="cartao">
+      <section class="cartao" id="blocoFoto">
         <h2 id="fotoTitulo">Foto do serviço pronto</h2>
         <div class="foto-area">
           <img id="previa" class="oculto" alt="Prévia da foto">
@@ -112,7 +137,7 @@
       </section>
 
       <section class="cartao oculto" id="blocoVideo">
-        <h2>Vídeo do serviço <span class="dica">(obrigatório nesta tarefa)</span></h2>
+        <h2><span id="videoTitulo">Vídeo do serviço</span> <span class="dica">(obrigatório nesta tarefa)</span></h2>
         <div class="foto-area">
           <video id="videoPrevia" class="oculto" playsinline controls></video>
           <video id="videoAoVivo" class="oculto" playsinline muted autoplay></video>
@@ -154,8 +179,8 @@
   <button class="botao" id="principal" type="button">Salvar início</button>
 </div>
 
-<script src="config.js?v=14"></script>
-<script src="fila.js?v=14"></script>
-<script src="app.js?v=14"></script>
+<script src="config.js?v=15"></script>
+<script src="fila.js?v=15"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>
