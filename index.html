@@ -26,9 +26,14 @@
     <p class="sub" id="subtitulo"></p>
     <div class="nina"><img class="nina-avatar" src="nina.webp" alt="Nina" width="56" height="56"><span id="ninaFala">Oi! Sou a Nina, assistente das suas tarefas.</span></div>
 
+    <section class="cartao progresso oculto" id="progresso">
+      <div class="prog-topo"><b id="progDia">Dia 1</b><span id="progTxt"></span></div>
+      <div class="barra oculto" id="progBarra"><span id="progCheio"></span></div>
+    </section>
+
     <div class="etapas">
-      <span class="etapa" id="etapa1">1 · Início</span>
-      <span class="etapa" id="etapa2">2 · Conclusão</span>
+      <span class="etapa" id="etapa1">1 · Início do dia</span>
+      <span class="etapa" id="etapa2">2 · Fim do dia</span>
     </div>
 
     <div id="avisoOffline" class="aviso atencao oculto">
@@ -52,7 +57,7 @@
           <input type="number" inputmode="decimal" step="0.1" id="kmIni">
         </div>
       </section>
-      <p class="dica" style="text-align:center">Depois de salvar, pode fechar. Ao terminar o serviço, abra este mesmo link para concluir.</p>
+      <p class="dica" style="text-align:center">Depois de salvar, pode fechar. No fim do expediente, abra este mesmo link. Se o serviço durar mais de um dia, use o mesmo link todos os dias.</p>
       <div class="aviso atencao" style="text-align:center"><b>⚠️ Importante — marcação de ponto:</b><br>este formulário <b>não substitui a sua batida de ponto</b> e <b>não tem validade jurídica</b> como registro de jornada. Continue marcando o ponto normalmente.</div>
     </form>
 
@@ -65,8 +70,14 @@
 
     <!-- ETAPA 2: conclusão -->
     <form id="formFim" class="oculto" novalidate>
+      <section class="cartao" id="blocoComo">
+        <h2>Como terminou hoje?</h2>
+        <label class="opcao"><input type="radio" name="como" value="dia" id="comoDia"><span><b>Encerrar o dia</b><span class="dica">O serviço continua amanhã. Use o mesmo link.</span></span></label>
+        <label class="opcao"><input type="radio" name="como" value="final" id="comoFinal"><span><b>Tarefa concluída</b><span class="dica">O serviço terminou. Vai para o supervisor dar o "de acordo".</span></span></label>
+      </section>
+
       <section class="cartao">
-        <h2>Terminando o serviço</h2>
+        <h2>Terminando o dia</h2>
         <div class="campo">
           <label for="saida">Hora de saída <span class="dica">(já vem com a hora de agora)</span></label>
           <input type="time" id="saida" required>
@@ -84,19 +95,19 @@
       <section class="cartao oculto" id="blocoServico">
         <h2>Produção</h2>
         <div class="campo">
-          <label for="qtd">Quantidade feita <span class="dica" id="unidadeTxt"></span></label>
+          <label for="qtd">Quantidade feita hoje <span class="dica" id="unidadeTxt"></span></label>
           <input type="number" inputmode="decimal" step="0.01" id="qtd">
         </div>
         <div id="materiais"></div>
       </section>
 
       <section class="cartao">
-        <h2>Foto do serviço pronto</h2>
+        <h2 id="fotoTitulo">Foto do serviço pronto</h2>
         <div class="foto-area">
           <img id="previa" class="oculto" alt="Prévia da foto">
           <label for="foto" class="botao sec" id="botaoFoto">📷 Tirar foto</label>
           <input type="file" id="foto" accept="image/*" capture="environment">
-          <p class="dica" style="margin:10px 0 0">Tire a foto na hora, mostrando o serviço terminado.</p>
+          <p class="dica" style="margin:10px 0 0" id="fotoDica">Tire a foto na hora, mostrando o serviço terminado.</p>
         </div>
       </section>
 

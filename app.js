@@ -13,6 +13,8 @@
   const unidade = P.get("unidade") || "";
   const dataTarefa = (P.get("data") || "").slice(0, 10);          // AAAA-MM-DD
   const exigeVideo = P.get("video") === "1";
+  const dataFim = (P.get("fim") || "").slice(0, 10);              // data prevista de término (tarefa de vários dias)
+  const prevista = P.get("prevista") ? Number(String(P.get("prevista")).replace(",", ".")) : null;
   const demo = /^demo/i.test((P.get("tarefa") || "").trim());   // modelo: nada é enviado
 
   const materiais = [];
@@ -61,7 +63,7 @@
   $("subtitulo").textContent =
     (tipo === "maquina" ? (maquina ? "Máquina: " + maquina : "Apontamento de máquina") :
      tipo === "veiculo" ? (veiculo ? "Veículo: " + veiculo : "Apontamento de veículo") : "Serviço e materiais") +
-    (dataTarefa ? " · " + dataTarefa.split("-").reverse().join("/") : "");
+    (dataTarefa ? " · " + dataTarefa.split("-").reverse().join("/") + (dataFim && dataFim !== dataTarefa ? " a " + dataFim.split("-").reverse().join("/") : "") : "");
   document.title = (nomeTarefa || "Apontamento") + " – " + C.ASSISTENTE;
 
   // campos conforme o tipo
@@ -86,7 +88,6 @@
       $("materiais").appendChild(d);
     });
   }
-  if (exigeVideo) $("blocoVideo").classList.remove("oculto");
   $("maxSeg").textContent = $("maxSeg2").textContent = C.VIDEO_MAX_SEG;
   $("tela").classList.remove("oculto");
   if (demo) {
@@ -120,7 +121,28 @@
   // =====================================================================
   const chaveInicio = "inicio:" + tarefa + ":" + tipo;
   const chaveRascunho = "rascunho:" + tarefa + ":" + tipo;
+  const chaveHist = "historico:" + tarefa + ":" + tipo;
   let inicio = lerLocal(chaveInicio);
+  // dias já encerrados neste celular: [{ dia, quantidade, minutos }]
+  let historico = lerLocal(chaveHist) || [];
+  const dataBR = (iso) => (iso || "").split("-").reverse().slice(0, 2).join("/");
+  const diaNumero = () => (inicio && inicio.dia_numero) || historico.length + 1;
+  const totalFeito = () => historico.reduce((t, h) => t + (Number(h.quantidade) || 0), 0);
+
+  function mostrarProgresso() {
+    const n = diaNumero();
+    if (n <= 1 && !dataFim) { $("progresso").classList.add("oculto"); return; }
+    $("progresso").classList.remove("oculto");
+    $("progDia").textContent = "Dia " + n + (dataFim ? " · previsto até " + dataBR(dataFim) : "");
+    const feito = totalFeito();
+    const partes = [];
+    if (historico.length) partes.push(historico.length === 1 ? "1 dia encerrado" : historico.length + " dias encerrados");
+    if (tipo === "servico" && (feito || prevista)) partes.push("feito: " + fmt(Math.round(feito * 100) / 100) + (prevista ? " de " + fmt(prevista) : "") + (unidade ? " " + unidade : ""));
+    $("progTxt").textContent = partes.join(" · ");
+    const temBarra = tipo === "servico" && prevista > 0;
+    $("progBarra").classList.toggle("oculto", !temBarra);
+    if (temBarra) $("progCheio").style.width = Math.min(100, Math.round((feito / prevista) * 100)) + "%";
+  }
 
   function validarInicio() {
     const e = $("entrada").value;
@@ -142,6 +164,8 @@
       horimetro_inicial: num("horIni"),
       km_inicial: num("kmIni"),
       registrado_em: new Date().toISOString(),
+      dia: hojeISO(),
+      dia_numero: historico.length + 1,
       entrada_editada: $("entrada").value !== $("entrada").dataset.sugerida
     };
     guardarLocal(chaveInicio, inicio);
@@ -151,7 +175,9 @@
       id: novoId(),
       evento: "inicio",
       criado_em: inicio.registrado_em,
-      tipo, tarefa, nome_tarefa: nomeTarefa, data_tarefa: dataTarefa,
+      tipo, tarefa, nome_tarefa: nomeTarefa, data_tarefa: dataTarefa, data_fim_prevista: dataFim,
+      dia: inicio.dia,
+      dia_numero: inicio.dia_numero,
       entrada: inicio.entrada,
       entrada_editada: inicio.entrada_editada,
       horimetro_inicial: inicio.horimetro_inicial,
@@ -167,7 +193,7 @@
   }
 
   function preencherResumo() {
-    const linhas = [["Entrada", inicio.entrada]];
+    const linhas = [["Dia", (inicio.dia_numero || 1) + "º dia · " + dataBR(inicio.dia || hojeISO())], ["Entrada", inicio.entrada]];
     if (inicio.horimetro_inicial != null) linhas.push(["Horímetro inicial", fmt(inicio.horimetro_inicial)]);
     if (inicio.km_inicial != null) linhas.push(["KM inicial", fmt(inicio.km_inicial)]);
     linhas.push(["Salvo em", new Date(inicio.registrado_em).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })]);
@@ -357,12 +383,29 @@
     await aceitarVideo(file, segundos, false);
   });
 
+  // ----- encerrar o dia x tarefa concluída -----
+  function ehFinal() { return $("comoFinal").checked; }
+  function aplicarEscolha() {
+    const final = ehFinal();
+    $("blocoVideo").classList.toggle("oculto", !(exigeVideo && final));
+    $("fotoTitulo").textContent = final ? "Foto do serviço pronto" : "Foto do avanço de hoje";
+    $("fotoDica").textContent = final ? "Tire a foto na hora, mostrando o serviço terminado." : "Tire a foto na hora, mostrando o que foi feito hoje.";
+    if (inicio) $("principal").textContent = final ? "Concluir tarefa e enviar" : "Encerrar o dia e enviar";
+  }
+  ["comoDia", "comoFinal"].forEach((id) => $(id).addEventListener("change", aplicarEscolha));
+  function escolhaPadrao() {
+    // tarefa de um dia (ou último dia previsto) já vem como "concluída"
+    const continua = dataFim && dataFim > hojeISO();
+    $(continua ? "comoDia" : "comoFinal").checked = true;
+  }
+
   function validarFim() {
+    if (!$("comoDia").checked && !$("comoFinal").checked) return "Escolha: encerrar o dia ou tarefa concluída.";
     const s = $("saida").value;
     if (!s) return "Preencha a hora de saída.";
     if (minutos(s) <= minutos(inicio.entrada)) return "A saída precisa ser depois da entrada (" + inicio.entrada + ").";
     const hoje = hojeISO();
-    if ((!dataTarefa || dataTarefa === hoje) && minutos(s) > minutos(agoraHHMM()) + 2) return "A saída não pode ser depois de agora (" + agoraHHMM() + ").";
+    if ((inicio.dia || hoje) === hoje && minutos(s) > minutos(agoraHHMM()) + 2) return "A saída não pode ser depois de agora (" + agoraHHMM() + ").";
     if (tipo === "maquina") {
       if (num("horFim") === null) return "Preencha o horímetro final.";
       if (num("horFim") <= inicio.horimetro_inicial) return "O horímetro final precisa ser maior que o inicial (" + fmt(inicio.horimetro_inicial) + ").";
@@ -372,7 +415,7 @@
       if (num("kmFim") <= inicio.km_inicial) return "O KM final precisa ser maior que o inicial (" + fmt(inicio.km_inicial) + ").";
     }
     if (!foto) return "Tire a foto do serviço pronto.";
-    if (exigeVideo && !video) return "Esta tarefa precisa de vídeo. Grave o vídeo do serviço.";
+    if (exigeVideo && ehFinal() && !video) return "Esta tarefa precisa de vídeo. Grave o vídeo do serviço.";
     return "";
   }
 
@@ -385,18 +428,36 @@
     const msg = validarFim();
     mostrarErro(msg);
     if (msg) return;
+    const final = ehFinal();
     $("principal").disabled = true;
     $("principal").textContent = "Guardando…";
-    if (demo) {
+    const minutosDia = minutos($("saida").value) - minutos(inicio.entrada);
+    function encerrarLocal() {
       guardarLocal(chaveInicio, null);
       guardarLocal(chaveRascunho, null);
+      if (final) { historico = []; guardarLocal(chaveHist, null); }
+      else {
+        historico.push({ dia: inicio.dia || hojeISO(), dia_numero: inicio.dia_numero || historico.length + 1, quantidade: num("qtd"), minutos: minutosDia });
+        guardarLocal(chaveHist, historico);
+      }
+    }
+    function telaPronta(msg) {
       $("tela").classList.add("oculto");
       $("rodape").classList.add("oculto");
       $("pronto").classList.remove("oculto");
-      $("prontoTitulo").textContent = "Obrigada! Serviço concluído ✅";
-      $("msgPronto").textContent = "Este é um modelo de demonstração: nada foi enviado. Numa tarefa real, a Nina envia o apontamento para o supervisor conferir.";
-      $("prontoSub").textContent = "";
+      $("prontoTitulo").textContent = final ? "Obrigada! Tarefa concluída ✅" : "Dia " + (inicio ? inicio.dia_numero : historico.length) + " encerrado ✅";
+      $("msgPronto").textContent = msg;
+      $("prontoSub").textContent = final
+        ? "O supervisor vai conferir e dar o \"de acordo\". Só depois disso a tarefa fica como concluída."
+        : "Amanhã, ao começar, abra este mesmo link e toque em Salvar início. O supervisor confere cada dia.";
       window.scrollTo(0, 0);
+    }
+    if (demo) {
+      const numDia = inicio.dia_numero || 1;
+      encerrarLocal();
+      inicio = { dia_numero: numDia };
+      telaPronta("Este é um modelo de demonstração: nada foi enviado. Numa tarefa real, a " + C.ASSISTENTE + " envia o apontamento para o supervisor conferir.");
+      inicio = null;
       return;
     }
     const agora = new Date();
@@ -404,6 +465,14 @@
       id: novoId(),
       versao: 2,
       evento: "conclusao",
+      final: final,
+      tipo_envio: final ? "Conclusão da tarefa" : "Fim do dia",
+      dia: inicio.dia || hojeISO(),
+      dia_numero: inicio.dia_numero || historico.length + 1,
+      data_fim_prevista: dataFim,
+      quantidade_acumulada: Math.round((totalFeito() + (num("qtd") || 0)) * 100) / 100,
+      quantidade_prevista: prevista,
+      minutos_no_dia: minutosDia,
       criado_em: agora.toISOString(),
       tipo, tarefa, nome_tarefa: nomeTarefa, esperados, data_tarefa: dataTarefa,
       entrada: inicio.entrada,
@@ -428,7 +497,7 @@
       foto_tirada_em: foto.tiradaEm,
       foto_tamanho_original: foto.tamanhoOriginal,
       exige_video: exigeVideo,
-      video_base64: video ? video.base64 : "",
+      video_base64: video && final ? video.base64 : "",
       video_hash: video ? video.hash : "",
       video_tipo: video ? video.mime : "",
       video_segundos: video ? video.segundos : 0,
@@ -439,24 +508,17 @@
       await Fila.guardar(envio);
     } catch (e) {
       $("principal").disabled = false;
-      $("principal").textContent = "Concluir e enviar";
+      aplicarEscolha();
       mostrarErro("O celular está sem espaço para guardar o envio. Libere espaço e tente de novo.");
       return;
     }
-    guardarLocal(chaveInicio, null);
-    guardarLocal(chaveRascunho, null);
+    encerrarLocal();
     document.dispatchEvent(new CustomEvent("fila-mudou"));
     const subiu = navigator.onLine ? await Fila.sincronizar() : 0;
     const restantes = await Fila.contar();
-    $("tela").classList.add("oculto");
-    $("rodape").classList.add("oculto");
-    $("pronto").classList.remove("oculto");
-    $("prontoTitulo").textContent = "Obrigada! Serviço concluído ✅";
-    $("msgPronto").textContent = subiu && !restantes
+    telaPronta(subiu && !restantes
       ? "A " + C.ASSISTENTE + " já enviou seu apontamento."
-      : "A " + C.ASSISTENTE + " guardou seu apontamento no celular. Ele sobe sozinho quando tiver sinal — se demorar, abra este link de novo com sinal.";
-    $("prontoSub").textContent = "O supervisor vai conferir e dar o \"de acordo\". Só depois disso a tarefa fica como concluída.";
-    window.scrollTo(0, 0);
+      : "A " + C.ASSISTENTE + " guardou seu apontamento no celular. Ele sobe sozinho quando tiver sinal — se demorar, abra este link de novo com sinal.");
   }
 
   // =====================================================================
@@ -469,14 +531,23 @@
     $("formFim").classList.toggle("oculto", !temInicio);
     $("etapa1").className = "etapa " + (temInicio ? "feita" : "ativa");
     $("etapa2").className = "etapa " + (temInicio ? "ativa" : "");
-    $("principal").textContent = temInicio ? "Concluir e enviar" : "Salvar início";
-    $("ninaFala").textContent = temInicio
-      ? "Início salvo! Quando terminar o serviço, preencha a saída, tire a foto e toque em Concluir e enviar."
+    $("principal").textContent = "Salvar início";
+    const n = diaNumero();
+    const esqueceu = temInicio && inicio.dia && inicio.dia < hojeISO();
+    $("ninaFala").textContent = esqueceu
+      ? "O dia " + dataBR(inicio.dia) + " ficou aberto. Preencha a hora de saída daquele dia e envie. Depois, salve o início de hoje."
+      : temInicio
+      ? "Início salvo! No fim do expediente, preencha a saída, tire a foto e escolha: encerrar o dia ou tarefa concluída."
+      : n > 1
+      ? "Olá de novo! Hoje é o dia " + n + " desta tarefa. Ao começar, confira a hora de entrada e toque em Salvar início."
       : "Oi! Sou a " + C.ASSISTENTE + ", assistente das suas tarefas. Ao começar o serviço, confira a hora de entrada e toque em Salvar início.";
+    mostrarProgresso();
     mostrarErro("");
     if (temInicio) {
       preencherResumo();
       restaurarRascunho();
+      if (!$("comoDia").checked && !$("comoFinal").checked) escolhaPadrao();
+      aplicarEscolha();
       if (!$("saida").value) $("saida").value = agoraHHMM();
       $("saida").dataset.sugerida = $("saida").dataset.sugerida || agoraHHMM();
     } else if (!corrigindo) {

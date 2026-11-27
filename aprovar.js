@@ -30,7 +30,7 @@
   }, extra || {}) });
   const ITENS_DEMO = [
     exemplo("d1", "Abertura da Rua 4 – Máquina – Marcos", "2026-11-26T07:00:00-04:00", "2026-11-26T11:30:00-04:00", 4.5, "OK", "OK",
-      "COMPATIVEL\nMotoniveladora nivelando o leito da rua, solo exposto.", "", { "Horímetro inicial": { number: 1200 }, "Horímetro final": { number: 1204.5 } }),
+      "COMPATIVEL\nMotoniveladora nivelando o leito da rua, solo exposto.", "", { "Horímetro inicial": { number: 1200 }, "Horímetro final": { number: 1204.5 }, "Tipo de envio": { select: { name: "Fim do dia" } }, "Dia da tarefa": { number: 1 } }),
     exemplo("d2", "Meio-fio Rua 1 – Serviço – Antônio", "2026-11-26T13:00:00-04:00", "2026-11-26T17:00:00-04:00", 4, "OK", "Foto repetida",
       "INCONCLUSIVO\nFoto igual a um envio anterior.", "[saída digitada à mão] Faltou cimento às 15h", { "Quantidade realizada": { number: 38 }, "Unidade": { rich_text: rt("metros lineares") } })
   ];
@@ -106,6 +106,9 @@
       (videoUrl(p) ? '<video class="item-foto" controls playsinline preload="metadata"></video>' : "") +
       '<h2 class="titulo"></h2>' +
       '<div style="margin:0 0 8px">' +
+        (sel(prop(p, "Tipo de envio")) === "Fim do dia"
+          ? pill("Dia " + (numero(prop(p, "Dia da tarefa")) || "?") + " · fim do dia", "azul")
+          : pill((numero(prop(p, "Dia da tarefa")) > 1 ? "Dia " + numero(prop(p, "Dia da tarefa")) + " · " : "") + "Tarefa concluída", "verde")) +
         pill(vh === "OK" ? "Horário OK" : vh, vh === "OK" ? "" : "vermelho") +
         pill(vf === "OK" ? "Foto OK" : vf, vf === "OK" ? "" : (vf === "Foto não verificada" ? "laranja" : "vermelho")) +
       "</div>" +
