@@ -1,4 +1,4 @@
-# Supervisor 2.0 – apontamentos offline (Golden Incorporadora)
+# Supervisor 2.0 – apontamentos offline (Incorporadora Golden Ltda)
 
 **Supervisor 2.0** é o nome da metodologia, usado só no material institucional e de venda. Para o funcionário, quem aparece é a **Nina**, assistente das suas tarefas: ela envia as tarefas e guia o preenchimento do formulário.
 

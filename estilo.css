@@ -64,3 +64,6 @@ header.topo .empresa{font-weight:400;font-size:12px;color:var(--suave)}
 .barra{height:10px;background:#e6ece8;border-radius:6px;overflow:hidden;margin-top:8px}
 .barra span{display:block;height:100%;width:0;background:var(--verde);transition:width .3s}
 .pill.azul{background:#e3ecf7;color:#1f4f8a}
+
+.empresa-rodape{font-size:12px;line-height:1.5;color:var(--suave);text-align:center;margin:24px 0 8px;padding-top:12px;border-top:1px solid var(--borda)}
+.empresa-rodape a{color:var(--verde)}
